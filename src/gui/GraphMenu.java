@@ -3,18 +3,15 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-import aj210328.RouterRegister;
 
 /**
  *
@@ -23,45 +20,96 @@ import aj210328.RouterRegister;
 public class GraphMenu extends JFrame {
 
 	private JPanel bottomPanel;
-	private BarGraph barGraph;
+	private BarGraph barGraph1;
+	private BarGraph barGraph2;
 	private JComboBox<String> routerChoice;
 	private JComboBox<String> mibChoice;
 	public static final Font defaultFont = new Font("Segoe UI", Font.PLAIN, 30);
-	private JPanel graphPanel;
+	private JPanel graphHolderPanel;
+	private JPanel oneGraphPanel;
+	private JPanel twoGraphPanel;
+	
+	private LineGraph lg1;
+	private LineGraph lg2;
 
 	public GraphMenu() {
 		setSize(1400, 1200);
 		setTitle("RM2_Projekat_janko");
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		// setExtendedState(JFrame.MAXIMIZED_BOTH);
 		initComponents();
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
 	}
 
-	public void setBarGraph(BarGraph g) {
-		barGraph = g;
-	}
+	public void updateGraphs() {
+		switch (GraphController.getNumberOfGraphsNeeded()) {
+		case 1:
+			oneGraphPanel.removeAll();
+			//barGraph1 = new BarGraph(GraphController.extractSelectedDataOneGraph());
+			lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
+			//oneGraphPanel.add(barGraph1, BorderLayout.CENTER);
+			oneGraphPanel.add(lg1, BorderLayout.CENTER);
 
-	public void updateBarGraph() {
-//		BarGraph bg = BarGraphController.makeNewBarGraph();
-//		barGraph = bg;
-//		revalidate();
-//		bg.repaint();
-//		repaint();
+			graphHolderPanel.removeAll();
+			graphHolderPanel.add(oneGraphPanel);
+			oneGraphPanel.revalidate();
+			break;
+		case 2:
+			twoGraphPanel.removeAll();
+			ArrayList<ArrayList<Integer>> list = GraphController.extractSelectedDataTwoGraphs();
+//			barGraph1 = new BarGraph(list.get(0));
+//			barGraph2 = new BarGraph(list.get(1));
+//			twoGraphPanel.add(barGraph1);
+//			twoGraphPanel.add(barGraph2);
+			lg1 = new LineGraph(list.get(0));
+			lg2 = new LineGraph(list.get(1));
+			twoGraphPanel.add(lg1);
+			twoGraphPanel.add(lg2);
 
-		barGraph.setData(BarGraphController.extractSelectedData());
-		barGraph.repaint();
-		revalidate();
+			graphHolderPanel.removeAll();
+			graphHolderPanel.add(twoGraphPanel);
+			twoGraphPanel.revalidate();
+			break;
+		default:
+			System.err.println("Greska u updateGraphs(), nedozvoljen broj potrebnih grafova.");
+			break;
+		}
+		graphHolderPanel.revalidate();
+		graphHolderPanel.repaint();
 	}
 
 	private void initComponents() {
-		barGraph = BarGraphController.makeNewBarGraph();
+		initBottomPanel();
+		getContentPane().add(bottomPanel, BorderLayout.PAGE_END);
+
+		graphHolderPanel = new JPanel(new BorderLayout());
+		oneGraphPanel = new JPanel(new BorderLayout());
+		twoGraphPanel = new JPanel(new GridLayout(2, 1));
+		getContentPane().add(graphHolderPanel, BorderLayout.CENTER);
+
+//		barGraph1 = new BarGraph(GraphController.extractSelectedDataOneGraph());
+//		barGraph2 = new BarGraph(GraphController.extractSelectedDataOneGraph());
+		lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
+		lg2 = new LineGraph(GraphController.extractSelectedDataOneGraph());
+		
+
+//		oneGraphPanel.add(barGraph1, BorderLayout.CENTER);
+//
+//		twoGraphPanel.add(barGraph1);
+//		twoGraphPanel.add(barGraph2);
+		
+		oneGraphPanel.add(lg1, BorderLayout.CENTER);
+
+		twoGraphPanel.add(lg1);
+		twoGraphPanel.add(lg2);
+
+		updateGraphs();
+	}
+
+	private void initBottomPanel() {
 		bottomPanel = new JPanel(new GridBagLayout());
-		bottomPanel.setBackground(Color.red);
+		bottomPanel.setBackground(Color.yellow);
 		routerChoice = new JComboBox<>();
 		mibChoice = new JComboBox<>();
-
-		getContentPane().add(barGraph, BorderLayout.CENTER);
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 10, 10);
@@ -70,26 +118,25 @@ public class GraphMenu extends JFrame {
 		routerChoice.addItem("Ruter 2(192.168.20.1)");
 		routerChoice.addItem("Ruter 3(192.168.30.1)");
 		routerChoice.setFont(defaultFont);
-		// routerChoice.addItemListener(e -> System.out.println(e.getItem()));
 		routerChoice.addActionListener((e) -> {
 			// System.out.println(routerChoice.getSelectedItem());
 			switch (routerChoice.getSelectedItem().toString()) {
 			case "Ruter 1(192.168.10.1)":
 				// RouterRegister.setSelectedRouter(1);
-				BarGraphController.setSelectedRouter(1);
+				GraphController.setSelectedRouter(1);
 				break;
 			case "Ruter 2(192.168.20.1)":
 				// RouterRegister.setSelectedRouter(2);
-				BarGraphController.setSelectedRouter(2);
+				GraphController.setSelectedRouter(2);
 				break;
 			case "Ruter 3(192.168.30.1)":
 				// RouterRegister.setSelectedRouter(3);
-				BarGraphController.setSelectedRouter(3);
+				GraphController.setSelectedRouter(3);
 				break;
 			default:
 				break;
 			}
-			updateBarGraph();
+			updateGraphs();
 		});
 		gbc.gridx = 0;
 		gbc.gridy = 0;
@@ -104,27 +151,11 @@ public class GraphMenu extends JFrame {
 		mibChoice.setFont(defaultFont);
 		mibChoice.addActionListener((e) -> {
 			// System.out.println(mibChoice.getSelectedItem());
-			BarGraphController.setSelectedMIB(mibChoice.getSelectedItem().toString());
-			updateBarGraph();
+			GraphController.setSelectedMIB(mibChoice.getSelectedItem().toString());
+			updateGraphs();
 		});
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 		bottomPanel.add(mibChoice, gbc);
-		
-		gbc.gridx = 2;
-		gbc.gridy = 0;
-		JButton resetBtn = new JButton("Reset current graph");
-		resetBtn.addActionListener(e->{
-			BarGraphController.extractSelectedData().clear();
-			updateBarGraph();
-		});
-		resetBtn.setFont(defaultFont);
-		bottomPanel.add(resetBtn, gbc);
-
-		getContentPane().add(bottomPanel, BorderLayout.PAGE_END);
-	}
-
-	public static void main(String args[]) {
-		java.awt.EventQueue.invokeLater(() -> new GraphMenu().setVisible(true));
 	}
 }

@@ -5,18 +5,23 @@ import java.util.ArrayList;
 import aj210328.Router;
 import aj210328.RouterRegister;
 
-public class BarGraphController {
+public class GraphController {
 	private static Router selectedRouter;
 	private static String selectedMIB;
 	private static String[] possibleMIBs = { "CPU usage last 5s", "CPU usage last 1min", "CPU usage last 5min",
 			"Amount of used memory", "Amount of free memory" };
+	private static int numberOfGraphsNeeded = 1;
 
 	static {
 		selectedRouter = RouterRegister.getRouter(1);
 		selectedMIB = possibleMIBs[0];
 	}
 
-	private BarGraphController() {
+	private GraphController() {
+	}
+
+	public static int getNumberOfGraphsNeeded() {
+		return numberOfGraphsNeeded;
 	}
 
 	public static Router getSelectedRouter() {
@@ -24,7 +29,7 @@ public class BarGraphController {
 	}
 
 	public static void setSelectedRouter(Router selectedRouter) {
-		BarGraphController.selectedRouter = selectedRouter;
+		GraphController.selectedRouter = selectedRouter;
 	}
 
 	public static void setSelectedRouter(int Rn) {
@@ -36,34 +41,43 @@ public class BarGraphController {
 	}
 
 	public static void setSelectedMIB(String selectedMIB) {
-		BarGraphController.selectedMIB = selectedMIB;
+		GraphController.selectedMIB = selectedMIB;
+		if (selectedMIB.equals("Amount of used memory") || selectedMIB.equals("Amount of free memory")) {
+			numberOfGraphsNeeded = 2;
+		} else {
+			numberOfGraphsNeeded = 1;
+		}
 	}
 
-	public static ArrayList<Integer> extractSelectedData() {
+	public static ArrayList<Integer> extractSelectedDataOneGraph() {
 		switch (selectedMIB) {
 		case "CPU usage last 5s":
 			return selectedRouter.getCpu5secUsage();
-
 		case "CPU usage last 1min":
 			return selectedRouter.getCpu1minUsage();
-
 		case "CPU usage last 5min":
 			return selectedRouter.getCpu5minUsage();
-
-		case "Amount of free memory":
-			return selectedRouter.getMemPool1free();
-
-		case "Amount of used memory":
-			return selectedRouter.getMemPool1used();
-
 		default:
 			return null;
 		}
 	}
 
-	public static BarGraph makeNewBarGraph() {
-		System.out.println(selectedRouter + ":" + selectedMIB);
-		return new BarGraph(extractSelectedData());
+	public static ArrayList<ArrayList<Integer>> extractSelectedDataTwoGraphs() {
+		ArrayList<ArrayList<Integer>> res;
+		switch (selectedMIB) {
+		case "Amount of free memory":
+			res = new ArrayList<>();
+			res.add(selectedRouter.getMemPool1free());
+			res.add(selectedRouter.getMemPool2free());
+			return res;
+		case "Amount of used memory":
+			res = new ArrayList<>();
+			res.add(selectedRouter.getMemPool1used());
+			res.add(selectedRouter.getMemPool2used());
+			return res;
+		default:
+			return null;
+		}
 	}
 
 }

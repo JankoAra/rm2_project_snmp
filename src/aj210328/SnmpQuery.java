@@ -44,9 +44,10 @@ public class SnmpQuery {
 
 			// Process the response
 			if (responsePDU != null) {
-				//System.out.println("Received response: " + responsePDU.getVariableBindings().get(0).getVariable());
+				// System.out.println("Received response: " +
+				// responsePDU.getVariableBindings().get(0).getVariable());
 			} else {
-				System.out.println("No response received. oid:"+oid);
+				System.out.println("No response received. oid:" + oid);
 				return null;
 			}
 
@@ -54,8 +55,7 @@ public class SnmpQuery {
 			snmp.close();
 
 			return responsePDU.getVariableBindings().get(0).getVariable().toString();
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			// TODO: handle exception
 			return null;
 		}

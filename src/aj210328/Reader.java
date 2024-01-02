@@ -1,15 +1,24 @@
 package aj210328;
 
 import gui.BarGraph;
-import gui.BarGraphController;
+import gui.GraphController;
 
 public class Reader extends Thread {
 
-	private int period;
+	private static int period;
+	private static int timesRead = 0;
 
 	public Reader(int T) {
 		setDaemon(true);
 		period = T;
+	}
+
+	public static int getPeriod() {
+		return period;
+	}
+
+	public static int getTimesRead() {
+		return timesRead;
 	}
 
 	public static final String OID_cmpCPUTotal5secRev = "1.3.6.1.4.1.9.9.109.1.1.1.1.6.1";
@@ -35,9 +44,11 @@ public class Reader extends Thread {
 					r.addMemPool2Used(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolUsed + ".2", r)));
 				}
 				
-				Main.gm.updateBarGraph();
-				System.out.println(BarGraphController.extractSelectedData());
-				
+				timesRead++;
+
+				Main.gm.updateGraphs();
+				;
+				// System.out.println(BarGraphController.extractSelectedData());
 
 				// sleep
 				Thread.sleep(period * 1000);
