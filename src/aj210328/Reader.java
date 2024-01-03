@@ -27,6 +27,8 @@ public class Reader extends Thread {
 	public static final String OID_memoryPoolName = "1.3.6.1.4.1.9.9.48.1.1.1.2"; // .1 and .2
 	public static final String OID_memoryPoolUsed = "1.3.6.1.4.1.9.9.48.1.1.1.5"; // .1 and .2
 	public static final String OID_memoryPoolFree = "1.3.6.1.4.1.9.9.48.1.1.1.6"; // .1 and .2
+	
+	
 
 	@Override
 	public void run() {

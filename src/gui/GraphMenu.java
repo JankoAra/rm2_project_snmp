@@ -13,6 +13,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import aj210328.Router;
+
 /**
  *
  * @author janko
@@ -60,8 +62,8 @@ public class GraphMenu extends JFrame {
 //			barGraph2 = new BarGraph(list.get(1));
 //			twoGraphPanel.add(barGraph1);
 //			twoGraphPanel.add(barGraph2);
-			lg1 = new LineGraph(list.get(0));
-			lg2 = new LineGraph(list.get(1));
+			lg1 = new LineGraph(list.get(0), Router.memPoolName1);
+			lg2 = new LineGraph(list.get(1), Router.memPoolName2);
 			twoGraphPanel.add(lg1);
 			twoGraphPanel.add(lg2);
 

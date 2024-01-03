@@ -16,6 +16,9 @@ public class Router {
 	private ArrayList<Integer> memPool1used = new ArrayList<Integer>(200);
 	private ArrayList<Integer> memPool2free = new ArrayList<Integer>(200);
 	private ArrayList<Integer> memPool2used = new ArrayList<Integer>(200);
+	
+	public static final String memPoolName1 = "Processor";
+	public static final String memPoolName2 = "I/O";
 
 	public Router(int id, String ip) {
 		ipAddress = ip;

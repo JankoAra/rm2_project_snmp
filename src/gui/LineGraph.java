@@ -25,18 +25,28 @@ public class LineGraph extends JPanel {
 	private List<Point> points;
 	private long timeSinceStart;
 
+	public enum LowestValue {
+		ZERO, MIN_VALUE, MIN_AS_MIDDLE
+	}
+
+	private LowestValue lowestValue;
+
+	public void setMinValuePosition(LowestValue minValuePosition) {
+		this.lowestValue = minValuePosition;
+	}
+
 	private static final int pointsToShow = 20;
 
 	private Point hoveredPoint;
 
-	public LineGraph(List<Integer> data, String name, long timeSinceStart) {
+	public LineGraph(List<Integer> data, String name) {
 		int fromIndex = Math.max(0, data.size() - pointsToShow);
 		this.data = new ArrayList<Integer>();
 		for (int i : data.subList(fromIndex, data.size())) {
 			this.data.add(i);
 		}
 		this.graphName = name;
-		this.timeSinceStart = timeSinceStart;
+		this.timeSinceStart = Reader.getTimesRead() * Reader.getPeriod();
 
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
@@ -61,7 +71,7 @@ public class LineGraph extends JPanel {
 	}
 
 	public LineGraph(List<Integer> data) {
-		this(data, "Test", Reader.getTimesRead() * Reader.getPeriod());
+		this(data, "Test");
 	}
 
 	@Override
@@ -119,10 +129,7 @@ public class LineGraph extends JPanel {
 		}
 
 		// Draw y-axis marks
-		// int differentYValues = (new HashSet<Integer>(data)).size();
-		// int numOfMarks = Math.min(minLargestValue, differentYValues);
-		int numOfMarks = minLargestValue;
-		numOfMarks = Math.max(numOfMarks, 1);
+		int numOfMarks = 5;
 		int maxElement = Math.max(maxElementInList(data), minLargestValue);
 		for (int i = 0; i < numOfMarks + 1; i++) {
 			g2d.setStroke(new BasicStroke(3));
@@ -180,12 +187,11 @@ public class LineGraph extends JPanel {
 		g.fillOval(x - dotSize / 2, y - dotSize / 2, dotSize, dotSize);
 	}
 
-	private static ArrayList<Integer> scaleValues(List<Integer> original, int maxHeight, int minLargestValue) {
+	private ArrayList<Integer> scaleValues(List<Integer> original, int maxHeight, int minLargestValue) {
 		ArrayList<Integer> scaledValues = new ArrayList<>();
 
 		List<Integer> originalValues = original;
 
-		// int minValue = minElementInList(original);
 		int minValue = 0;
 		int maxValue = maxElementInList(original);
 
