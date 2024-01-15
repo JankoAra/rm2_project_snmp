@@ -36,7 +36,7 @@ public class SnmpQuery {
 			// Create PDU
 			PDU pdu = new PDU();
 			pdu.setType(PDU.GET);
-			pdu.add(new VariableBinding(new OID(oid))); // OID for sysDescr
+			pdu.add(new VariableBinding(new OID(oid)));
 
 			// Send the request
 			ResponseEvent response = snmp.send(pdu, target);
@@ -56,7 +56,6 @@ public class SnmpQuery {
 
 			return responsePDU.getVariableBindings().get(0).getVariable().toString();
 		} catch (IOException e) {
-			// TODO: handle exception
 			return null;
 		}
 	}

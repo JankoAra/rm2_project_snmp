@@ -1,8 +1,5 @@
 package aj210328;
 
-import gui.BarGraph;
-import gui.GraphController;
-
 public class Reader extends Thread {
 
 	private static int period;
@@ -27,8 +24,6 @@ public class Reader extends Thread {
 	public static final String OID_memoryPoolName = "1.3.6.1.4.1.9.9.48.1.1.1.2"; // .1 and .2
 	public static final String OID_memoryPoolUsed = "1.3.6.1.4.1.9.9.48.1.1.1.5"; // .1 and .2
 	public static final String OID_memoryPoolFree = "1.3.6.1.4.1.9.9.48.1.1.1.6"; // .1 and .2
-	
-	
 
 	@Override
 	public void run() {
@@ -45,12 +40,8 @@ public class Reader extends Thread {
 					r.addMemPool2Free(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolFree + ".2", r)));
 					r.addMemPool2Used(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolUsed + ".2", r)));
 				}
-				
 				timesRead++;
-
 				Main.gm.updateGraphs();
-				;
-				// System.out.println(BarGraphController.extractSelectedData());
 
 				// sleep
 				Thread.sleep(period * 1000);

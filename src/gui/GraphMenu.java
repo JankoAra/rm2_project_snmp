@@ -37,7 +37,7 @@ public class GraphMenu extends JFrame {
 	public GraphMenu() {
 		setSize(1400, 1200);
 		setTitle("RM2_Projekat_janko");
-		// setExtendedState(JFrame.MAXIMIZED_BOTH);
+		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		initComponents();
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 	}
