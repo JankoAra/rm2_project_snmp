@@ -29,28 +29,35 @@ public class Reader extends Thread {
 	public void run() {
 		while (true) {
 			try {
-				// read all relevant MIBs for all routers and store results in corresponding
-				// router info lists
+				// citanje svih MIB-ova za sve rutere i dodavanje u odgovarajuce liste
+				System.out.println("Citanje");
 				for (Router r : RouterRegister.getRouters()) {
-					r.add5secUsage(Integer.parseInt(SnmpQuery.getOID(OID_cmpCPUTotal5secRev, r)));
-					r.add1minUsage(Integer.parseInt(SnmpQuery.getOID(OID_cmpCPUTotal1minRev, r)));
-					r.add5minUsage(Integer.parseInt(SnmpQuery.getOID(OID_cmpCPUTotal5minRev, r)));
-					r.addMemPool1Free(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolFree + ".1", r)));
-					r.addMemPool1Used(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolUsed + ".1", r)));
-					r.addMemPool2Free(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolFree + ".2", r)));
-					r.addMemPool2Used(Integer.parseInt(SnmpQuery.getOID(OID_memoryPoolUsed + ".2", r)));
+					r.add5secUsage(parseIntOrZero(SnmpQuery.getOID(OID_cmpCPUTotal5secRev, r)));
+					r.add1minUsage(parseIntOrZero(SnmpQuery.getOID(OID_cmpCPUTotal1minRev, r)));
+					r.add5minUsage(parseIntOrZero(SnmpQuery.getOID(OID_cmpCPUTotal5minRev, r)));
+					r.addMemPool1Free(parseIntOrZero(SnmpQuery.getOID(OID_memoryPoolFree + ".1", r)));
+					r.addMemPool1Used(parseIntOrZero(SnmpQuery.getOID(OID_memoryPoolUsed + ".1", r)));
+					r.addMemPool2Free(parseIntOrZero(SnmpQuery.getOID(OID_memoryPoolFree + ".2", r)));
+					r.addMemPool2Used(parseIntOrZero(SnmpQuery.getOID(OID_memoryPoolUsed + ".2", r)));
 				}
 				timesRead++;
 				Main.gm.updateGraphs();
 
 				// sleep
 				Thread.sleep(period * 1000);
-
-				System.out.println("Citanje");
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private int parseIntOrZero(String string) {
+		int res = 0;
+		try {
+			res = Integer.parseInt(string);
+		} catch (Exception e) {
+
+		}
+		return res;
 	}
 }

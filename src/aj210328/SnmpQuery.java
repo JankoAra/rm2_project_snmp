@@ -19,13 +19,13 @@ public class SnmpQuery {
 
 	public static String getOID(String oid, Router r) {
 		try {
-			// Create SNMP4J objects
+			// otvaranje konekcije za SNMP preko UDP protokola
 			TransportMapping<UdpAddress> transport = new DefaultUdpTransportMapping();
 			Snmp snmp = new Snmp(transport);
-			transport.listen();
+			snmp.listen();
 
-			// Create target
-			String targetAddress = "udp:" + r.getIpAddress() + "/161";
+			// postavljanje odredista (rutera)
+			String targetAddress = "udp:" + r.getIpAddress() + "/161";	//port 161
 			CommunityTarget target = new CommunityTarget();
 			target.setCommunity(new OctetString(Router.COMMUNITY_STRING)); // SNMP community string
 			target.setAddress(GenericAddress.parse(targetAddress));
@@ -33,29 +33,30 @@ public class SnmpQuery {
 			target.setTimeout(1500);
 			target.setVersion(SnmpConstants.version2c);
 
-			// Create PDU
+			// stvaranje zahteva
 			PDU pdu = new PDU();
 			pdu.setType(PDU.GET);
+			//VariableBinding povezuje OID sa vrednoscu, moze da se doda vise OID-ova u jednom zahtevu
 			pdu.add(new VariableBinding(new OID(oid)));
 
-			// Send the request
+			// slanje zahteva i prijem odgovora
 			ResponseEvent response = snmp.send(pdu, target);
 			PDU responsePDU = response.getResponse();
-
-			// Process the response
+			String oidValue = null;
 			if (responsePDU != null) {
-				// System.out.println("Received response: " +
-				// responsePDU.getVariableBindings().get(0).getVariable());
+				//responsePDU.getVariableBindings vraca listu svih dodatih VB
+				//ovde je dodat samo jedan VB pa uzimamo prvi iz liste
+				//VB.getOid() vraca OID
+				//VB.getVariable() vraca vrednost tog OID-a
+				oidValue = responsePDU.getVariableBindings().get(0).getVariable().toString();
 			} else {
-				System.out.println("No response received. oid:" + oid);
-				return null;
+				System.out.println("GRESKA! Nema odgovora za OID:" + oid);
 			}
 
-			// Close resources
+			// zatvaranje veze i oslobadjanje resursa
 			snmp.close();
-
-			return responsePDU.getVariableBindings().get(0).getVariable().toString();
-		} catch (IOException e) {
+			return oidValue;
+		} catch (IOException e) {	
 			return null;
 		}
 	}

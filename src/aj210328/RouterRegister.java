@@ -3,13 +3,13 @@ package aj210328;
 public class RouterRegister {
 	public static final int NUM_OF_ROUTERS = 3;
 	private static Router[] routers = new Router[NUM_OF_ROUTERS];
-	private static Router selectedRouter;
+	//private static Router selectedRouter;
 
 	static {
 		routers[0] = new Router(1, "192.168.10.1");
 		routers[1] = new Router(2, "192.168.20.1");
 		routers[2] = new Router(3, "192.168.30.1");
-		selectedRouter = routers[0];
+		//selectedRouter = routers[0];
 	}
 
 	private RouterRegister() {
@@ -27,15 +27,15 @@ public class RouterRegister {
 		return routers;
 	}
 
-	public static Router getSelectedRouter() {
-		return selectedRouter;
-	}
-
-	public static void setSelectedRouter(Router r) {
-		selectedRouter = r;
-	}
-	
-	public static void setSelectedRouter(int r) {
-		selectedRouter = routers[r-1];
-	}
+//	public static Router getSelectedRouter() {
+//		return selectedRouter;
+//	}
+//
+//	public static void setSelectedRouter(Router r) {
+//		selectedRouter = r;
+//	}
+//	
+//	public static void setSelectedRouter(int r) {
+//		selectedRouter = routers[r-1];
+//	}
 }

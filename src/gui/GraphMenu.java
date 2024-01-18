@@ -22,8 +22,6 @@ import aj210328.Router;
 public class GraphMenu extends JFrame {
 
 	private JPanel bottomPanel;
-	private BarGraph barGraph1;
-	private BarGraph barGraph2;
 	private JComboBox<String> routerChoice;
 	private JComboBox<String> mibChoice;
 	public static final Font defaultFont = new Font("Segoe UI", Font.PLAIN, 30);
@@ -46,9 +44,7 @@ public class GraphMenu extends JFrame {
 		switch (GraphController.getNumberOfGraphsNeeded()) {
 		case 1:
 			oneGraphPanel.removeAll();
-			//barGraph1 = new BarGraph(GraphController.extractSelectedDataOneGraph());
 			lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
-			//oneGraphPanel.add(barGraph1, BorderLayout.CENTER);
 			oneGraphPanel.add(lg1, BorderLayout.CENTER);
 
 			graphHolderPanel.removeAll();
@@ -58,10 +54,6 @@ public class GraphMenu extends JFrame {
 		case 2:
 			twoGraphPanel.removeAll();
 			ArrayList<ArrayList<Integer>> list = GraphController.extractSelectedDataTwoGraphs();
-//			barGraph1 = new BarGraph(list.get(0));
-//			barGraph2 = new BarGraph(list.get(1));
-//			twoGraphPanel.add(barGraph1);
-//			twoGraphPanel.add(barGraph2);
 			lg1 = new LineGraph(list.get(0), Router.memPoolName1);
 			lg2 = new LineGraph(list.get(1), Router.memPoolName2);
 			twoGraphPanel.add(lg1);
@@ -88,17 +80,9 @@ public class GraphMenu extends JFrame {
 		twoGraphPanel = new JPanel(new GridLayout(2, 1));
 		getContentPane().add(graphHolderPanel, BorderLayout.CENTER);
 
-//		barGraph1 = new BarGraph(GraphController.extractSelectedDataOneGraph());
-//		barGraph2 = new BarGraph(GraphController.extractSelectedDataOneGraph());
 		lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
 		lg2 = new LineGraph(GraphController.extractSelectedDataOneGraph());
-		
-
-//		oneGraphPanel.add(barGraph1, BorderLayout.CENTER);
-//
-//		twoGraphPanel.add(barGraph1);
-//		twoGraphPanel.add(barGraph2);
-		
+				
 		oneGraphPanel.add(lg1, BorderLayout.CENTER);
 
 		twoGraphPanel.add(lg1);
@@ -116,6 +100,7 @@ public class GraphMenu extends JFrame {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.insets = new Insets(10, 10, 10, 10);
 
+		//biranje rutera koji se prikazuje
 		routerChoice.addItem("Ruter 1(192.168.10.1)");
 		routerChoice.addItem("Ruter 2(192.168.20.1)");
 		routerChoice.addItem("Ruter 3(192.168.30.1)");
@@ -145,6 +130,7 @@ public class GraphMenu extends JFrame {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		bottomPanel.add(routerChoice, gbc);
 
+		//biranje parametra koji se prikazuje
 		mibChoice.addItem("CPU usage last 5s");
 		mibChoice.addItem("CPU usage last 1min");
 		mibChoice.addItem("CPU usage last 5min");

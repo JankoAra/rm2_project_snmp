@@ -8,14 +8,16 @@ public class Router {
 	private int id;
 
 	public static final String COMMUNITY_STRING = "si2019";
+	
+	private static final int listSize = 300;
 
-	private ArrayList<Integer> cpu5secUsage = new ArrayList<Integer>(200);
-	private ArrayList<Integer> cpu1minUsage = new ArrayList<Integer>(200);
-	private ArrayList<Integer> cpu5minUsage = new ArrayList<Integer>(200);
-	private ArrayList<Integer> memPool1free = new ArrayList<Integer>(200);
-	private ArrayList<Integer> memPool1used = new ArrayList<Integer>(200);
-	private ArrayList<Integer> memPool2free = new ArrayList<Integer>(200);
-	private ArrayList<Integer> memPool2used = new ArrayList<Integer>(200);
+	private ArrayList<Integer> cpu5secUsage = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> cpu1minUsage = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> cpu5minUsage = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> memPool1free = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> memPool1used = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> memPool2free = new ArrayList<Integer>(listSize);
+	private ArrayList<Integer> memPool2used = new ArrayList<Integer>(listSize);
 	
 	public static final String memPoolName1 = "Processor";
 	public static final String memPoolName2 = "I/O";
