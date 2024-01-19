@@ -44,7 +44,7 @@ public class GraphMenu extends JFrame {
 		switch (GraphController.getNumberOfGraphsNeeded()) {
 		case 1:
 			oneGraphPanel.removeAll();
-			lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
+			lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph(),"",false);
 			oneGraphPanel.add(lg1, BorderLayout.CENTER);
 
 			graphHolderPanel.removeAll();
@@ -54,8 +54,8 @@ public class GraphMenu extends JFrame {
 		case 2:
 			twoGraphPanel.removeAll();
 			ArrayList<ArrayList<Integer>> list = GraphController.extractSelectedDataTwoGraphs();
-			lg1 = new LineGraph(list.get(0), Router.memPoolName1);
-			lg2 = new LineGraph(list.get(1), Router.memPoolName2);
+			lg1 = new LineGraph(list.get(0), Router.memPoolName1,true);
+			lg2 = new LineGraph(list.get(1), Router.memPoolName2,true);
 			twoGraphPanel.add(lg1);
 			twoGraphPanel.add(lg2);
 
@@ -80,8 +80,8 @@ public class GraphMenu extends JFrame {
 		twoGraphPanel = new JPanel(new GridLayout(2, 1));
 		getContentPane().add(graphHolderPanel, BorderLayout.CENTER);
 
-		lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph());
-		lg2 = new LineGraph(GraphController.extractSelectedDataOneGraph());
+		lg1 = new LineGraph(GraphController.extractSelectedDataOneGraph(),"",false);
+		lg2 = new LineGraph(GraphController.extractSelectedDataOneGraph(),"",false);
 				
 		oneGraphPanel.add(lg1, BorderLayout.CENTER);
 

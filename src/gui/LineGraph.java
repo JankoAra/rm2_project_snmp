@@ -10,6 +10,7 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,21 +25,14 @@ public class LineGraph extends JPanel {
 	private List<Point> points;
 	private long timeSinceStart;
 
-	public enum LowestValue {
-		ZERO, MIN_VALUE, MIN_AS_MIDDLE
-	}
-
-	private LowestValue lowestValue;
-
-	public void setMinValuePosition(LowestValue minValuePosition) {
-		this.lowestValue = minValuePosition;
-	}
-
 	private static final int pointsToShow = 20;
 
 	private Point hoveredPoint;
 
-	public LineGraph(List<Integer> data, String name) {
+	private boolean averageCentered;
+
+	public LineGraph(List<Integer> data, String name, boolean avgCenter) {
+		// prikazuje se samo poslednjih pointsToShow ocitavanja
 		int fromIndex = Math.max(0, data.size() - pointsToShow);
 		this.data = new ArrayList<Integer>();
 		for (int i : data.subList(fromIndex, data.size())) {
@@ -46,23 +40,22 @@ public class LineGraph extends JPanel {
 		}
 		this.graphName = name;
 		this.timeSinceStart = Reader.getTimesRead() * Reader.getPeriod();
+		this.averageCentered = avgCenter;
 
+		// pracenje da li prelazimo misem preko neke tacke za detaljniji ispis
 		addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseMoved(MouseEvent e) {
-				// Check if the mouse is over a point
 				int mouseX = e.getX();
 				int mouseY = e.getY();
-
 				for (Point p : points) {
 					if (isMouseOverPoint(mouseX, mouseY, p)) {
 						hoveredPoint = p;
-						repaint(); // Trigger repaint to update the tooltip
+						repaint();
 						return;
 					}
 				}
-
-				// If the mouse is not over any point, set hoveredPoint to null
+				// ako ne prelazimo ni preko jedne tacke
 				hoveredPoint = null;
 				repaint();
 			}
@@ -70,81 +63,109 @@ public class LineGraph extends JPanel {
 	}
 
 	public LineGraph(List<Integer> data) {
-		this(data, "Test");
+		this(data, "Test", false);
 	}
 
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		// Need Graphics2D to set line thickness
+		// Graphics2D za podesavanje debljine linija
 		Graphics2D g2d = (Graphics2D) g;
 
 		int width = getWidth();
 		int height = getHeight();
 
-		// Define usable area
+		// upotrebljiv prostor, unutar margina
 		int xLeft = 80;
 		int xRight = width - 20;
 		int yTop = 50;
 		int yBottom = height - 40;
 
+		// maksimalna visina grafika
 		int usableHeight = yBottom - yTop - 10;
 
+		// razmak izmedju tacaka po x-osi
 		int hGap = (xRight - xLeft) / pointsToShow;
 
-		// Draw graph name
+		// ispis imena grafika
 		g2d.setColor(Color.black);
 		g2d.setFont(new Font("Arial", Font.BOLD, 25));
 		drawCenteredString(g2d, graphName, new Point((xRight - xLeft) / 2, 15));
 
-		// Draw x-axis
+		// x-osa
 		g2d.setStroke(new BasicStroke(3));
 		g2d.drawLine(xLeft, yBottom, xRight, yBottom);
 
-		// Draw y-axis
+		// y-osa
 		g2d.drawLine(xLeft, yBottom, xLeft, yTop);
 
+		// najmanja vrednost koja se moze naci na vrhu grafika
 		int minLargestValue = 5;
 
-		// Calculate scaled values on graph size
+		// skaliranje vrednosti za prestavljanje na grafiku
 		ArrayList<Integer> scaledValues = scaleValues(data, usableHeight, minLargestValue);
 
-		// Calculate points from data
+		// racunanje tacaka na grafiku
 		points = new LinkedList<Point>();
 		for (int i = 0; i < data.size(); i++) {
 			int pointY = scaledValues.get(i);
 			points.add(new Point(xLeft + i * hGap, yBottom - pointY));
 		}
 
+		// crtanje oznaka na x-osi za vreme
 		int readerPeriod = Reader.getPeriod();
 		long startTime = Math.max(0, timeSinceStart - pointsToShow * readerPeriod);
-
-		// Draw x-axis marks
 		g2d.setFont(new Font("Arial", Font.PLAIN, 18));
 		for (int i = 0; i < data.size(); i++) {
 			g2d.drawLine(xLeft + i * hGap, yBottom, xLeft + i * hGap, yBottom + 3);
 			drawCenteredString(g2d, (startTime + i * readerPeriod) + "", new Point(xLeft + i * hGap, yBottom + 10));
 		}
 
-		// Draw y-axis marks
+		// crtanje oznaka na y-osi za vrednost
 		int numOfMarks = 5;
 		int maxElement = Math.max(maxElementInList(data), minLargestValue);
-		for (int i = 0; i < numOfMarks + 1; i++) {
-			g2d.setStroke(new BasicStroke(3));
-			g2d.setColor(Color.black);
-			int markY = yBottom - i * (usableHeight / numOfMarks);
-			g2d.drawLine(xLeft - 3, markY, xLeft, markY);
-			drawCenteredString(g2d, String.format("%.1f", i * (maxElement * 1.0 / numOfMarks)),
-					new Point(xLeft - 25, markY));
 
-			// Draw support lines
-			g2d.setStroke(new BasicStroke(1));
-			g2d.setColor(Color.LIGHT_GRAY);
-			g2d.drawLine(xLeft, markY, xRight, markY);
+		if (averageCentered) {
+			int numberOfDifferentElems = new HashSet<Integer>(data).size();
+			int minValue = 0;
+			if (numberOfDifferentElems > 1) {
+				minValue = minElementInList(data);
+			} else {
+				minValue = data.get(0) - 1000;
+				maxElement = data.get(0) + 1000;
+			}
+			for (int i = 0; i < numOfMarks + 1; i++) {
+				g2d.setStroke(new BasicStroke(3));
+				g2d.setColor(Color.black);
+				int markY = yBottom - i * (usableHeight / numOfMarks);
+				g2d.drawLine(xLeft - 3, markY, xLeft, markY);
+				drawCenteredString(g2d,
+						String.format("%.0f", minValue + i * ((maxElement - minValue) * 1.0 / numOfMarks)),
+						new Point(xLeft - 25, markY));
+
+				// pomocne linije grafika
+				g2d.setStroke(new BasicStroke(1));
+				g2d.setColor(Color.LIGHT_GRAY);
+				g2d.drawLine(xLeft, markY, xRight, markY);
+			}
+		} else {
+			for (int i = 0; i < numOfMarks + 1; i++) {
+				g2d.setStroke(new BasicStroke(3));
+				g2d.setColor(Color.black);
+				int markY = yBottom - i * (usableHeight / numOfMarks);
+				g2d.drawLine(xLeft - 3, markY, xLeft, markY);
+				drawCenteredString(g2d, String.format("%.1f", i * (maxElement * 1.0 / numOfMarks)),
+						new Point(xLeft - 25, markY));
+
+				// pomocne linije grafika
+				g2d.setStroke(new BasicStroke(1));
+				g2d.setColor(Color.LIGHT_GRAY);
+				g2d.drawLine(xLeft, markY, xRight, markY);
+			}
 		}
 
-		// Connect points
+		// povezivanje tacaka na grafiku
 		g2d.setStroke(new BasicStroke(3));
 		g2d.setColor(Color.blue);
 		Point leftPoint = null;
@@ -155,13 +176,14 @@ public class LineGraph extends JPanel {
 			leftPoint = p;
 		}
 
-		// Draw points
+		// crtanje tacaka
 		for (Point p : points) {
 			int index = points.indexOf(p);
 			if (hoveredPoint != null && hoveredPoint.equals(p)) {
-				// Draw a larger dot and display value when hovered
+				// veca tacka ako je mis preko nje
 				g2d.setColor(Color.BLACK);
 				drawDot(g2d, p.x, p.y, 15);
+				g2d.setFont(new Font("Arial", Font.BOLD, 24));
 				drawCenteredString(g2d, "Value: " + data.get(index), new Point(p.x, p.y - 15));
 			} else {
 				g2d.setColor(Color.red);
@@ -194,14 +216,22 @@ public class LineGraph extends JPanel {
 		int minValue = 0;
 		int maxValue = maxElementInList(original);
 
+		if (averageCentered) {
+			int numberOfDifferentElems = new HashSet<Integer>(originalValues).size();
+			if (numberOfDifferentElems > 1) {
+				minValue = minElementInList(originalValues);
+			} else {
+				minValue = originalValues.get(0) - 1000;
+				maxValue = originalValues.get(0) + 1000;
+			}
+		}
+
 		if (maxValue < minLargestValue) {
 			maxValue = minLargestValue;
 		}
 
-		// Calculate the scaling factor
 		double scaleFactor = (double) maxHeight / (maxValue - minValue);
 
-		// Scale each value and add it to the scaled list
 		for (int value : originalValues) {
 			int scaledValue = (int) ((value - minValue) * scaleFactor);
 			scaledValues.add(scaledValue);
